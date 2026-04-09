@@ -1,0 +1,16 @@
+# smpchatutils, paper-first chat utilities
+# reload w/o restart: /smpchatutils reload or /scu reload
+
+# public chat & = § (colors 0-9,a-f, styles l,m,n,o, reset r). hex: &#RRGGBB or &x&R&R&G&G&B&B
+# grant smpchatutils.chat.format to use if you are disabling it by default here
+chat:
+  format:
+    enabled: true
+    # minimessage <colour>, <gradient>, etc with safe tag set
+    minimessage: true
+    # obf will not work by default because it makes names unreadable. enable only if really needed
+    obfuscated: false
+  # stored prefix shown before display name in chat
+  namecolor:
+    enabled: true
+    max-prefix-length: 48
