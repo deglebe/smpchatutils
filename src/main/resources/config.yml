@@ -1,6 +1,13 @@
 # smpchatutils, paper-first chat utilities
 # reload w/o restart: /smpchatutils reload or /scu reload
 
+# name-color data: yaml or sqlite (bundled driver). switching types will not migrate automatically
+# sqlite: one file for all plugin tables, do not expect separate db per feature
+storage:
+  type: yaml
+  # file name only, under plugins/smpchatutils/ (when type is sqlite)
+  sqlite-file: smpchatutils.db
+
 # public chat & = § (colors 0-9,a-f, styles l,m,n,o, reset r). hex: &#RRGGBB or &x&R&R&G&G&B&B
 # grant smpchatutils.chat.format to use if you are disabling it by default here
 chat:

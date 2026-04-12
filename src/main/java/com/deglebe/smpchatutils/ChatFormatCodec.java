@@ -16,6 +16,14 @@ public final class ChatFormatCodec {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
     private static final String NAME_VALIDATE_PLACEHOLDER = "\uE000\uE001\uE002";
 
+    /* strip code before minimessage tag stripping */
+    private static final String REGEX_LEGACY_OBF = "[&§][kK]";
+
+    private static final String REGEX_MM_OBF_NEG = "(?i)</?!obfuscated[^>]*>";
+    private static final String REGEX_MM_OBF_SHORT_NEG = "(?i)</?!obf[^>]*>";
+    private static final String REGEX_MM_OBF_FULL = "(?i)</?obfuscated[^>]*>";
+    private static final String REGEX_MM_OBF_SHORT = "(?i)</?obf[^>]*>";
+
     private static final TagResolver TAGS_NO_OBF = TagResolver.resolver(
         StandardTags.color(),
         TagResolver.resolver(
@@ -45,27 +53,32 @@ public final class ChatFormatCodec {
         StandardTags.shadowColor()
     );
 
-    private static final MiniMessage MINI_NO_OBF = MiniMessage.builder().tags(TAGS_NO_OBF).strict(false).build();
-    private static final MiniMessage MINI_WITH_OBF = MiniMessage.builder().tags(TAGS_WITH_OBF).strict(false).build();
+    private static final MiniMessage MINI_NO_OBF =
+        MiniMessage.builder().tags(TAGS_NO_OBF).strict(false).build();
+    private static final MiniMessage MINI_WITH_OBF =
+        MiniMessage.builder().tags(TAGS_WITH_OBF).strict(false).build();
 
-    private ChatFormatCodec() {
-    }
+    private ChatFormatCodec() {}
 
     private static MiniMessage mini(boolean obf) {
         return obf ? MINI_WITH_OBF : MINI_NO_OBF;
     }
 
-    /** strips {@code &k}/{@code §k} and minimessage obf tags. regex may miss some tag variations */
-    public static String stripDisallowedObfuscation(String input, boolean miniMessageEnabled, boolean allowObfuscated) {
+    /* strip codes and minimessage obf tags (best effort) */
+    public static String stripDisallowedObfuscation(
+        String input,
+        boolean miniMessageEnabled,
+        boolean allowObfuscated
+    ) {
         if (allowObfuscated || input == null || input.isEmpty()) {
             return input;
         }
-        String s = input.replaceAll("[&§][kK]", "");
+        String s = input.replaceAll(REGEX_LEGACY_OBF, "");
         if (miniMessageEnabled) {
-            s = s.replaceAll("(?i)</?!obfuscated[^>]*>", "")
-                .replaceAll("(?i)</?!obf[^>]*>", "")
-                .replaceAll("(?i)</?obfuscated[^>]*>", "")
-                .replaceAll("(?i)</?obf[^>]*>", "");
+            s = s.replaceAll(REGEX_MM_OBF_NEG, "")
+                .replaceAll(REGEX_MM_OBF_SHORT_NEG, "")
+                .replaceAll(REGEX_MM_OBF_FULL, "")
+                .replaceAll(REGEX_MM_OBF_SHORT, "");
         }
         return s;
     }
@@ -89,7 +102,11 @@ public final class ChatFormatCodec {
         return plain.indexOf('&') >= 0 || (miniMessageEnabled && probablyMiniMessage(plain));
     }
 
-    public static Component deserializeForChat(String input, boolean miniMessageEnabled, boolean allowObfuscated) {
+    public static Component deserializeForChat(
+        String input,
+        boolean miniMessageEnabled,
+        boolean allowObfuscated
+    ) {
         String in = stripDisallowedObfuscation(input, miniMessageEnabled, allowObfuscated);
         if (miniMessageEnabled) {
             Component mm = tryMiniDeserialize(in, allowObfuscated);
@@ -103,14 +120,19 @@ public final class ChatFormatCodec {
         return Component.text(in);
     }
 
-    public static Component deserializeStyledName(String format, String playerName, boolean miniMessageEnabled, boolean allowObfuscated) {
+    public static Component deserializeStyledName(
+        String format,
+        String playerName,
+        boolean miniMessageEnabled,
+        boolean allowObfuscated
+    ) {
         String fmt = stripDisallowedObfuscation(format, miniMessageEnabled, allowObfuscated);
         if (miniMessageEnabled && probablyMiniMessage(fmt)) {
             MiniMessage m = mini(allowObfuscated);
             try {
                 return m.deserialize(fmt + m.escapeTags(playerName));
             } catch (ParsingException ignored) {
-                // fall through to legacy/plain name (could log at FINE with debug flag at some point)
+                // fall through to legacy / plain name
             }
         }
         if (fmt.indexOf('&') >= 0) {
@@ -119,7 +141,11 @@ public final class ChatFormatCodec {
         return Component.text(playerName);
     }
 
-    public static @Nullable String validateMiniNameFormat(String format, boolean miniMessageEnabled, boolean allowObfuscated) {
+    public static @Nullable String validateMiniNameFormat(
+        String format,
+        boolean miniMessageEnabled,
+        boolean allowObfuscated
+    ) {
         String fmt = stripDisallowedObfuscation(format, miniMessageEnabled, allowObfuscated);
         if (fmt.isEmpty() && !format.trim().isEmpty()) {
             return "Only obfuscated style was given; it is disabled (chat.format.obfuscated).";

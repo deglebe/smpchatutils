@@ -42,7 +42,7 @@ public final class ChatFormatListener implements Listener {
         boolean obf = cfg.formatObfuscated();
         ChatRenderer base = event.renderer();
         event.renderer((source, sourceDisplayName, message, viewer) -> {
-            // plaintext loses click/hover on team disp names, tradeoff until using formatted+child styles as per paper api
+            // plaintext name loses team click/hover, tbh i think this is acceptable tradeoff
             String plainName = PLAIN.serialize(sourceDisplayName);
             Component styled = ChatFormatCodec.deserializeStyledName(prefix, plainName, mini, obf);
             return base.render(source, styled, message, viewer);

@@ -1,22 +1,9 @@
-# Gradle
+# gradle
 /.gradle/
 /build/
 
-# IDE
+# ide
 /.idea/
 *.iml
 out/
-
-# Eclipse
-.classpath
-.project
-.settings/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Local / scratch
-*.log
-*.swp
-*~
+bin/

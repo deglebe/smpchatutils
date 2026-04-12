@@ -1,4 +1,4 @@
-package com.deglebe.smpchatutils;
+package com.deglebe.smpchatutils.persistence;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,17 +10,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class NameColorStore {
+final class YamlNameColorBackend implements NameColorBackend {
 
     private final JavaPlugin plugin;
     private final File file;
     private final Map<UUID, String> prefixes = new ConcurrentHashMap<>();
 
-    public NameColorStore(JavaPlugin plugin) {
+    YamlNameColorBackend(JavaPlugin plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "namecolors.yml");
     }
 
+    @Override
     public void load() {
         if (!plugin.getDataFolder().isDirectory() && !plugin.getDataFolder().mkdirs()) {
             plugin.getLogger().warning("Could not create data folder for name colors.");
@@ -54,7 +55,7 @@ public final class NameColorStore {
         }
     }
 
-    public void save() {
+    private void save() {
         YamlConfiguration yaml = new YamlConfiguration();
         ConfigurationSection section = yaml.createSection("players");
         for (Map.Entry<UUID, String> e : prefixes.entrySet()) {
@@ -69,10 +70,12 @@ public final class NameColorStore {
         }
     }
 
+    @Override
     public String getPrefix(UUID uuid) {
         return prefixes.get(uuid);
     }
 
+    @Override
     public void setPrefix(UUID uuid, String prefix) {
         if (prefix == null || prefix.isEmpty()) {
             prefixes.remove(uuid);
@@ -82,8 +85,14 @@ public final class NameColorStore {
         save();
     }
 
+    @Override
     public void clear(UUID uuid) {
         prefixes.remove(uuid);
         save();
+    }
+
+    @Override
+    public void close() {
+        // nothing to close
     }
 }

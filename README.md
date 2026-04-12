@@ -11,7 +11,7 @@ paper(folia)-first plugin for general-purpose chat utilities for low-effort smps
     - [ ] reply command
 - [ ] line-prefix chat (>, |, ', etc.)
 - [ ] offline mail queue
-- [ ] sqlite integration (currently uses yaml for persistence)
+- [x] name-color persistence: `storage.type` **yaml** or **sqlite** (`storage.sqlite-file`)
 
 ## anti-features:
 - no roles or prefixes/suffices

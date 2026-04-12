@@ -1,7 +1,10 @@
 package com.deglebe.smpchatutils;
 
+import com.deglebe.smpchatutils.persistence.StorageType;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Locale;
 
 public final class ChatUtilsConfig {
 
@@ -11,6 +14,8 @@ public final class ChatUtilsConfig {
     private boolean formatObfuscated;
     private boolean nameColorEnabled;
     private int nameColorMaxPrefixLength;
+    private StorageType storageType = StorageType.YAML;
+    private String storageSqliteFile = "smpchatutils.db";
 
     public ChatUtilsConfig(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -28,6 +33,41 @@ public final class ChatUtilsConfig {
         formatObfuscated = c.getBoolean("chat.format.obfuscated", false);
         nameColorEnabled = c.getBoolean("chat.namecolor.enabled", true);
         nameColorMaxPrefixLength = Math.max(1, Math.min(128, c.getInt("chat.namecolor.max-prefix-length", 48)));
+
+        String rawType = c.getString("storage.type", "yaml");
+        if (rawType == null || rawType.isBlank()) {
+            rawType = "yaml";
+        }
+        String t = rawType.trim().toLowerCase(Locale.ROOT);
+        if ("sqlite".equals(t)) {
+            storageType = StorageType.SQLITE;
+        } else {
+            if (!"yaml".equals(t)) {
+                plugin.getLogger().warning("Unknown storage.type '" + rawType + "', using yaml.");
+            }
+            storageType = StorageType.YAML;
+        }
+
+        String sqliteInput = c.getString("storage.sqlite-file", "smpchatutils.db");
+        storageSqliteFile = sanitizeSqliteFileName(sqliteInput);
+        if (sqliteInput != null && !sqliteInput.isBlank()) {
+            String expect = sqliteInput.trim();
+            if (!expect.equals(storageSqliteFile)) {
+                plugin.getLogger().warning("Invalid storage.sqlite-file; using '" + storageSqliteFile + "'.");
+            }
+        }
+    }
+
+    /* single file name only */
+    private static String sanitizeSqliteFileName(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "smpchatutils.db";
+        }
+        String s = raw.trim();
+        if (s.contains("..") || s.indexOf('/') >= 0 || s.indexOf('\\') >= 0) {
+            return "smpchatutils.db";
+        }
+        return s;
     }
 
     public boolean chatFormatEnabled() {
@@ -48,5 +88,14 @@ public final class ChatUtilsConfig {
 
     public int nameColorMaxPrefixLength() {
         return nameColorMaxPrefixLength;
+    }
+
+    public StorageType storageType() {
+        return storageType;
+    }
+
+    /* file name only, resolved under plugins/smpchatutils/ when using sqlite */
+    public String storageSqliteFile() {
+        return storageSqliteFile;
     }
 }

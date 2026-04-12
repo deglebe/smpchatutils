@@ -1,5 +1,6 @@
 package com.deglebe.smpchatutils;
 
+import com.deglebe.smpchatutils.persistence.NameColorStore;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +33,9 @@ public final class Smpchatutils extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (nameColorStore != null) {
+            nameColorStore.close();
+        }
     }
 
     public ChatUtilsConfig config() {

@@ -35,12 +35,6 @@ public final class NameColorCommand {
         "dark_purple", "gold", "gray", "dark_gray", "blue",
         "green", "aqua", "red", "light_purple", "yellow", "white"
     };
-    private static final NamedTextColor[] SAMPLE_COLORS = {
-        NamedTextColor.BLACK, NamedTextColor.DARK_BLUE, NamedTextColor.DARK_GREEN,
-        NamedTextColor.DARK_AQUA, NamedTextColor.DARK_RED,
-        NamedTextColor.DARK_PURPLE, NamedTextColor.GOLD, NamedTextColor.GRAY, NamedTextColor.DARK_GRAY, NamedTextColor.BLUE,
-        NamedTextColor.GREEN, NamedTextColor.AQUA, NamedTextColor.RED, NamedTextColor.LIGHT_PURPLE, NamedTextColor.YELLOW, NamedTextColor.WHITE
-    };
 
     private final Smpchatutils plugin;
 
@@ -173,7 +167,7 @@ public final class NameColorCommand {
             if (i > 0) {
                 line = line.append(Component.text(" "));
             }
-            line = line.append(Component.text(SAMPLE_NAMES[i], SAMPLE_COLORS[i]));
+            line = line.append(Component.text(SAMPLE_NAMES[i], LEGACY_COLOR[i]));
         }
         return line;
     }
