@@ -28,7 +28,7 @@ all features should be able to be revoked with a permissions plugin of your choi
 ./gradlew build
 ```
 
-JAR: `build/libs/smpchatutils-<version>.jar` (`version` in `gradle.properties`; current **0.0.1**).
+JAR: `build/libs/smpchatutils-<version>.jar` (`version` in `gradle.properties`; current **0.0.2**).
 
 ## requirements
 
