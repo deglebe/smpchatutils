@@ -2,12 +2,15 @@ package com.deglebe.smpchatutils;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+
+import java.util.UUID;
 
 public final class ChatFormatListener implements Listener {
 
@@ -17,6 +20,27 @@ public final class ChatFormatListener implements Listener {
 
     public ChatFormatListener(Smpchatutils plugin) {
         this.plugin = plugin;
+    }
+
+    /* drop viewers who have ignored the sender */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onAsyncChatFilterIgnored(AsyncChatEvent event) {
+        if (!plugin.config().ignoreChatEnabled()) {
+            return;
+        }
+        Player sender = event.getPlayer();
+        UUID senderId = sender.getUniqueId();
+        event.viewers().removeIf(audience -> filterOutIgnoredViewer(audience, senderId));
+    }
+
+    private boolean filterOutIgnoredViewer(Audience audience, UUID senderId) {
+        if (!(audience instanceof Player viewer)) {
+            return false;
+        }
+        if (viewer.getUniqueId().equals(senderId)) {
+            return false;
+        }
+        return plugin.ignoreLists().isIgnoring(viewer.getUniqueId(), senderId);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

@@ -1,8 +1,8 @@
 # smpchatutils, paper-first chat utilities
 # reload w/o restart: /smpchatutils reload or /scu reload
 
-# name-color data: yaml or sqlite (bundled driver). switching types will not migrate automatically
-# sqlite: one file for all plugin tables, do not expect separate db per feature
+# name colors + ignore lists: yaml (namecolors.yml, ignores.yml) or sqlite (one file, all tables).
+# switching storage.type does not migrate data automatically.
 storage:
   type: yaml
   # file name only, under plugins/smpchatutils/ (when type is sqlite)
@@ -21,3 +21,6 @@ chat:
   namecolor:
     enabled: true
     max-prefix-length: 48
+  # /ignore, /unignore, /ignorelist — hide ignored senders from viewer via AsyncChatEvent viewers (in-memory lookups)
+  ignore:
+    enabled: true

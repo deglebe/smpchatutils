@@ -15,6 +15,15 @@ commands:
     description: SMP Chat Utilities — reload, name color in chat
     usage: /<command> reload | namecolor …
     aliases: [ scu, smpchat, namecolor, nc ]
+  ignore:
+    description: Ignore a player's public chat
+    usage: /<command> <player>
+  unignore:
+    description: Stop ignoring a player
+    usage: /<command> <player>
+  ignorelist:
+    description: List players you are ignoring
+    usage: /<command>
 
 permissions:
   smpchatutils.chat.namecolor:
@@ -23,6 +32,9 @@ permissions:
   smpchatutils.chat.format:
     description: Use & color and style codes in public chat
     default: false
+  smpchatutils.chat.ignore:
+    description: Use /ignore, /unignore, and /ignorelist; receive chat filtering for ignored players
+    default: true
   smpchatutils.reload:
     description: Reload configuration from disk
     default: op
@@ -32,3 +44,4 @@ permissions:
     children:
       smpchatutils.reload: true
       smpchatutils.chat.namecolor: true
+      smpchatutils.chat.ignore: true

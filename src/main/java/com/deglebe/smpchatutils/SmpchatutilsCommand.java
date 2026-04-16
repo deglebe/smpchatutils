@@ -59,7 +59,8 @@ public final class SmpchatutilsCommand implements TabExecutor {
             }
             plugin.config().reload();
             plugin.nameColors().load();
-            sender.sendMessage(Component.text("smpchatutils: configuration and name colors reloaded.", NamedTextColor.GREEN));
+            plugin.ignoreLists().load();
+            sender.sendMessage(Component.text("smpchatutils: configuration, name colors, and ignore list reloaded.", NamedTextColor.GREEN));
             return true;
         }
         sender.sendMessage(usage());
