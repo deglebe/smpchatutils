@@ -60,6 +60,38 @@ public final class NameColorStore {
         }
     }
 
+    public String getChatPrefix(UUID uuid) {
+        return backend == null ? null : backend.getChatPrefix(uuid);
+    }
+
+    public void setChatPrefix(UUID uuid, String prefix) {
+        if (backend != null) {
+            backend.setChatPrefix(uuid, prefix);
+        }
+    }
+
+    public void clearChatPrefix(UUID uuid) {
+        if (backend != null) {
+            backend.clearChatPrefix(uuid);
+        }
+    }
+
+    public String getChatSuffix(UUID uuid) {
+        return backend == null ? null : backend.getChatSuffix(uuid);
+    }
+
+    public void setChatSuffix(UUID uuid, String suffix) {
+        if (backend != null) {
+            backend.setChatSuffix(uuid, suffix);
+        }
+    }
+
+    public void clearChatSuffix(UUID uuid) {
+        if (backend != null) {
+            backend.clearChatSuffix(uuid);
+        }
+    }
+
     /* return shared db handle in sqlire mode, or null for yaml */
     public PluginSqlite sqlite() {
         return sqlite;

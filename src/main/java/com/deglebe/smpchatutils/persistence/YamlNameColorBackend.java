@@ -6,7 +6,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,7 +16,11 @@ final class YamlNameColorBackend implements NameColorBackend {
 
     private final JavaPlugin plugin;
     private final File file;
-    private final Map<UUID, String> prefixes = new ConcurrentHashMap<>();
+
+    // Existing /nc format (legacy key was players.<uuid>: "<format>")
+    private final Map<UUID, String> nameFormats = new ConcurrentHashMap<>();
+    private final Map<UUID, String> chatPrefixes = new ConcurrentHashMap<>();
+    private final Map<UUID, String> chatSuffixes = new ConcurrentHashMap<>();
 
     YamlNameColorBackend(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -24,9 +30,12 @@ final class YamlNameColorBackend implements NameColorBackend {
     @Override
     public void load() {
         if (!plugin.getDataFolder().isDirectory() && !plugin.getDataFolder().mkdirs()) {
-            plugin.getLogger().warning("Could not create data folder for name colors.");
+            plugin.getLogger().warning("Could not create data folder for name metadata.");
         }
-        prefixes.clear();
+        nameFormats.clear();
+        chatPrefixes.clear();
+        chatSuffixes.clear();
+
         if (!file.exists()) {
             try {
                 if (!file.createNewFile()) {
@@ -37,32 +46,70 @@ final class YamlNameColorBackend implements NameColorBackend {
             }
             return;
         }
+
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
-        ConfigurationSection section = yaml.getConfigurationSection("players");
-        if (section == null) {
+        ConfigurationSection players = yaml.getConfigurationSection("players");
+        if (players == null) {
             return;
         }
-        for (String key : section.getKeys(false)) {
+
+        for (String key : players.getKeys(false)) {
+            UUID id;
             try {
-                String v = section.getString(key, "");
-                if (v == null || v.isEmpty()) {
-                    continue;
-                }
-                prefixes.put(UUID.fromString(key), v);
+                id = UUID.fromString(key);
             } catch (IllegalArgumentException ignored) {
-                // skip malformed keys in players.<uuid>
+                continue;
             }
+
+            // Backward compatibility: players.<uuid>: "<format>"
+            String legacy = players.getString(key);
+            if (legacy != null && !legacy.isEmpty()) {
+                nameFormats.put(id, legacy);
+                continue;
+            }
+
+            ConfigurationSection node = players.getConfigurationSection(key);
+            if (node == null) {
+                continue;
+            }
+
+            putIfNonEmpty(nameFormats, id, node.getString("format", ""));
+            putIfNonEmpty(chatPrefixes, id, node.getString("chat-prefix", ""));
+            putIfNonEmpty(chatSuffixes, id, node.getString("chat-suffix", ""));
+        }
+    }
+
+    private static void putIfNonEmpty(Map<UUID, String> map, UUID id, String value) {
+        if (value != null && !value.isEmpty()) {
+            map.put(id, value);
         }
     }
 
     private void save() {
         YamlConfiguration yaml = new YamlConfiguration();
-        ConfigurationSection section = yaml.createSection("players");
-        for (Map.Entry<UUID, String> e : prefixes.entrySet()) {
-            if (e.getValue() != null && !e.getValue().isEmpty()) {
-                section.set(e.getKey().toString(), e.getValue());
+        ConfigurationSection players = yaml.createSection("players");
+
+        Set<UUID> ids = new HashSet<>();
+        ids.addAll(nameFormats.keySet());
+        ids.addAll(chatPrefixes.keySet());
+        ids.addAll(chatSuffixes.keySet());
+
+        for (UUID id : ids) {
+            ConfigurationSection node = players.createSection(id.toString());
+            String f = nameFormats.get(id);
+            String p = chatPrefixes.get(id);
+            String s = chatSuffixes.get(id);
+            if (f != null && !f.isEmpty()) {
+                node.set("format", f);
+            }
+            if (p != null && !p.isEmpty()) {
+                node.set("chat-prefix", p);
+            }
+            if (s != null && !s.isEmpty()) {
+                node.set("chat-suffix", s);
             }
         }
+
         try {
             yaml.save(file);
         } catch (IOException e) {
@@ -72,27 +119,71 @@ final class YamlNameColorBackend implements NameColorBackend {
 
     @Override
     public String getPrefix(UUID uuid) {
-        return prefixes.get(uuid);
+        return nameFormats.get(uuid);
     }
 
     @Override
     public void setPrefix(UUID uuid, String prefix) {
         if (prefix == null || prefix.isEmpty()) {
-            prefixes.remove(uuid);
+            nameFormats.remove(uuid);
         } else {
-            prefixes.put(uuid, prefix);
+            nameFormats.put(uuid, prefix);
+        }
+        save();
+    }
+
+    @Override
+    public String getChatPrefix(UUID uuid) {
+        return chatPrefixes.get(uuid);
+    }
+
+    @Override
+    public void setChatPrefix(UUID uuid, String prefix) {
+        if (prefix == null || prefix.isEmpty()) {
+            chatPrefixes.remove(uuid);
+        } else {
+            chatPrefixes.put(uuid, prefix);
+        }
+        save();
+    }
+
+    @Override
+    public String getChatSuffix(UUID uuid) {
+        return chatSuffixes.get(uuid);
+    }
+
+    @Override
+    public void setChatSuffix(UUID uuid, String suffix) {
+        if (suffix == null || suffix.isEmpty()) {
+            chatSuffixes.remove(uuid);
+        } else {
+            chatSuffixes.put(uuid, suffix);
         }
         save();
     }
 
     @Override
     public void clear(UUID uuid) {
-        prefixes.remove(uuid);
+        nameFormats.remove(uuid);
+        save();
+    }
+
+    @Override
+    public void clearChatPrefix(UUID uuid) {
+        chatPrefixes.remove(uuid);
+        save();
+    }
+
+    @Override
+    public void clearChatSuffix(UUID uuid) {
+        chatSuffixes.remove(uuid);
         save();
     }
 
     @Override
     public void close() {
-        // nothing to close
+        nameFormats.clear();
+        chatPrefixes.clear();
+        chatSuffixes.clear();
     }
 }

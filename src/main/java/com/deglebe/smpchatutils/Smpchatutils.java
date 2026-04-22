@@ -33,6 +33,16 @@ public final class Smpchatutils extends JavaPlugin {
         cmd.setExecutor(executor);
         cmd.setTabCompleter(executor);
 
+        for (String name : new String[] { "prefix", "suffix" }) {
+            var c = getCommand(name);
+            if (c == null) {
+                getLogger().warning("Command '" + name + "' missing from plugin.yml.");
+            } else {
+                c.setExecutor(executor);
+                c.setTabCompleter(executor);
+            }
+        }
+
         var ignores = new IgnoreCommands(this);
         for (String name : new String[] { "ignore", "unignore", "ignorelist" }) {
             var c = getCommand(name);

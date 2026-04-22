@@ -12,9 +12,15 @@ website: https://deglebe.com
 # all names share one registration so /namecolor and /nc always resolve (avoids missing second command)
 commands:
   smpchatutils:
-    description: SMP Chat Utilities — reload, name color in chat
-    usage: /<command> reload | namecolor …
+    description: SMP Chat Utilities — reload and chat metadata commands
+    usage: /<command> reload | namecolor … | prefix … | suffix …
     aliases: [ scu, smpchat, namecolor, nc ]
+  prefix:
+    description: Set a personal chat prefix
+    usage: /<command> <value> | clear | preview | help
+  suffix:
+    description: Set a personal chat suffix
+    usage: /<command> <value> | clear | preview | help
   ignore:
     description: Ignore a player's public chat
     usage: /<command> <player>
@@ -35,6 +41,12 @@ permissions:
   smpchatutils.chat.ignore:
     description: Use /ignore, /unignore, and /ignorelist; receive chat filtering for ignored players
     default: true
+  smpchatutils.chat.prefix:
+    description: Set a personal prefix shown before your display name in chat
+    default: true
+  smpchatutils.chat.suffix:
+    description: Set a personal suffix shown after your display name in chat
+    default: true
   smpchatutils.reload:
     description: Reload configuration from disk
     default: op
@@ -45,3 +57,5 @@ permissions:
       smpchatutils.reload: true
       smpchatutils.chat.namecolor: true
       smpchatutils.chat.ignore: true
+      smpchatutils.chat.prefix: true
+      smpchatutils.chat.suffix: true

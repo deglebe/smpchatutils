@@ -11,7 +11,19 @@ interface NameColorBackend {
 
     void setPrefix(UUID uuid, String prefix);
 
+    String getChatPrefix(UUID uuid);
+
+    void setChatPrefix(UUID uuid, String prefix);
+
+    String getChatSuffix(UUID uuid);
+
+    void setChatSuffix(UUID uuid, String suffix);
+
     void clear(UUID uuid);
+
+    void clearChatPrefix(UUID uuid);
+
+    void clearChatSuffix(UUID uuid);
 
     /* release backend-only resources, no sqlite */
     void close();

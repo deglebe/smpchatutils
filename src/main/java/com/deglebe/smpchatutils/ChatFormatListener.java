@@ -45,31 +45,44 @@ public final class ChatFormatListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAsyncChat(final AsyncChatEvent event) {
-        applyNameColor(event);
+        applyNameDecorations(event);
         applyMessageFormat(event);
     }
 
-    private void applyNameColor(final AsyncChatEvent event) {
+    private void applyNameDecorations(final AsyncChatEvent event) {
         var cfg = plugin.config();
-        if (!cfg.nameColorEnabled()) {
-            return;
-        }
         Player player = event.getPlayer();
-        if (!player.hasPermission("smpchatutils.chat.namecolor")) {
-            return;
-        }
-        String prefix = plugin.nameColors().getPrefix(player.getUniqueId());
-        if (prefix == null || prefix.isEmpty()) {
+        boolean allowNameColor = cfg.nameColorEnabled() && player.hasPermission("smpchatutils.chat.namecolor");
+        boolean allowChatPrefix = cfg.chatPrefixEnabled() && player.hasPermission("smpchatutils.chat.prefix");
+        boolean allowChatSuffix = cfg.chatSuffixEnabled() && player.hasPermission("smpchatutils.chat.suffix");
+
+        String nameFormat = allowNameColor ? plugin.nameColors().getPrefix(player.getUniqueId()) : null;
+        String chatPrefix = allowChatPrefix ? plugin.nameColors().getChatPrefix(player.getUniqueId()) : null;
+        String chatSuffix = allowChatSuffix ? plugin.nameColors().getChatSuffix(player.getUniqueId()) : null;
+
+        boolean hasNameFormat = nameFormat != null && !nameFormat.isEmpty();
+        boolean hasChatPrefix = chatPrefix != null && !chatPrefix.isEmpty();
+        boolean hasChatSuffix = chatSuffix != null && !chatSuffix.isEmpty();
+        if (!hasNameFormat && !hasChatPrefix && !hasChatSuffix) {
             return;
         }
         boolean mini = cfg.miniMessageEnabled();
         boolean obf = cfg.formatObfuscated();
         ChatRenderer base = event.renderer();
         event.renderer((source, sourceDisplayName, message, viewer) -> {
-            // plaintext name loses team click/hover, tbh i think this is acceptable tradeoff
-            String plainName = PLAIN.serialize(sourceDisplayName);
-            Component styled = ChatFormatCodec.deserializeStyledName(prefix, plainName, mini, obf);
-            return base.render(source, styled, message, viewer);
+            Component display = sourceDisplayName;
+            if (hasNameFormat) {
+                // name format still flattens component tree; prefix/suffix below keep structure when used alone
+                String plainName = PLAIN.serialize(sourceDisplayName);
+                display = ChatFormatCodec.deserializeStyledName(nameFormat, plainName, mini, obf);
+            }
+            if (hasChatPrefix) {
+                display = ChatFormatCodec.deserializeForChat(chatPrefix, mini, obf).append(display);
+            }
+            if (hasChatSuffix) {
+                display = display.append(ChatFormatCodec.deserializeForChat(chatSuffix, mini, obf));
+            }
+            return base.render(source, display, message, viewer);
         });
     }
 

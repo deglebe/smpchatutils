@@ -15,6 +15,12 @@ final class SqliteSchema {
                 "CREATE TABLE IF NOT EXISTS namecolors (uuid TEXT PRIMARY KEY NOT NULL, prefix TEXT NOT NULL)"
             );
             st.execute(
+                "CREATE TABLE IF NOT EXISTS player_chat_prefixes (uuid TEXT PRIMARY KEY NOT NULL, prefix TEXT NOT NULL)"
+            );
+            st.execute(
+                "CREATE TABLE IF NOT EXISTS player_chat_suffixes (uuid TEXT PRIMARY KEY NOT NULL, suffix TEXT NOT NULL)"
+            );
+            st.execute(
                 "CREATE TABLE IF NOT EXISTS player_ignores ("
                     + "ignorer_uuid TEXT NOT NULL, "
                     + "ignored_uuid TEXT NOT NULL, "

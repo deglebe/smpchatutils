@@ -8,6 +8,7 @@ paper(folia)-first chat utilities for low-effort smps
 - [x] permission support (ongoing)
 - [x] ignore system
 - [x] yaml and sqlite persistence, configurable
+- [x] per-player chat prefix/suffix (`/prefix`, `/suffix`)
 - [ ] improved direct messaging
     - [ ] better whisper
     - [ ] reply command
@@ -16,13 +17,15 @@ paper(folia)-first chat utilities for low-effort smps
 
 ## anti-features
 
-- no roles or prefixes/suffices
+- no role ladders / rank framework
 - no spam filtering
 - does not assume 1.19+ chat signage
 
 ## permissions
 
 - `smpchatutils.chat.namecolor`
+- `smpchatutils.chat.prefix`
+- `smpchatutils.chat.suffix`
 - `smpchatutils.chat.format`
 - `smpchatutils.chat.ignore`
 - `smpchatutils.reload`

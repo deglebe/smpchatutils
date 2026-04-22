@@ -21,6 +21,14 @@ chat:
   namecolor:
     enabled: true
     max-prefix-length: 48
-  # /ignore, /unignore, /ignorelist — hide ignored senders from viewer via AsyncChatEvent viewers (in-memory lookups)
+  # custom metadata before your display name (stored by this plugin)
+  prefix:
+    enabled: true
+    max-length: 48
+  # custom metadata after your display name (stored by this plugin)
+  suffix:
+    enabled: true
+    max-length: 48
+  # /ignore, /unignore, /ignorelist - hide ignored senders from viewer via AsyncChatEvent viewers (in-memory lookups)
   ignore:
     enabled: true

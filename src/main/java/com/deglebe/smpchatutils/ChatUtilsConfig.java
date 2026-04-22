@@ -13,8 +13,12 @@ public final class ChatUtilsConfig {
     private boolean miniMessageEnabled;
     private boolean formatObfuscated;
     private boolean nameColorEnabled;
+    private boolean chatPrefixEnabled;
+    private boolean chatSuffixEnabled;
     private boolean ignoreChatEnabled;
     private int nameColorMaxPrefixLength;
+    private int chatPrefixMaxLength;
+    private int chatSuffixMaxLength;
     private StorageType storageType = StorageType.YAML;
     private String storageSqliteFile = "smpchatutils.db";
 
@@ -33,8 +37,12 @@ public final class ChatUtilsConfig {
         miniMessageEnabled = c.getBoolean("chat.format.minimessage", true);
         formatObfuscated = c.getBoolean("chat.format.obfuscated", false);
         nameColorEnabled = c.getBoolean("chat.namecolor.enabled", true);
+        chatPrefixEnabled = c.getBoolean("chat.prefix.enabled", true);
+        chatSuffixEnabled = c.getBoolean("chat.suffix.enabled", true);
         ignoreChatEnabled = c.getBoolean("chat.ignore.enabled", true);
         nameColorMaxPrefixLength = Math.max(1, Math.min(128, c.getInt("chat.namecolor.max-prefix-length", 48)));
+        chatPrefixMaxLength = Math.max(1, Math.min(128, c.getInt("chat.prefix.max-length", 48)));
+        chatSuffixMaxLength = Math.max(1, Math.min(128, c.getInt("chat.suffix.max-length", 48)));
 
         String rawType = c.getString("storage.type", "yaml");
         if (rawType == null || rawType.isBlank()) {
@@ -88,6 +96,14 @@ public final class ChatUtilsConfig {
         return nameColorEnabled;
     }
 
+    public boolean chatPrefixEnabled() {
+        return chatPrefixEnabled;
+    }
+
+    public boolean chatSuffixEnabled() {
+        return chatSuffixEnabled;
+    }
+
     /* when false, /ignore commands no-op and chat is not filtered by ignore lists. */
     public boolean ignoreChatEnabled() {
         return ignoreChatEnabled;
@@ -95,6 +111,14 @@ public final class ChatUtilsConfig {
 
     public int nameColorMaxPrefixLength() {
         return nameColorMaxPrefixLength;
+    }
+
+    public int chatPrefixMaxLength() {
+        return chatPrefixMaxLength;
+    }
+
+    public int chatSuffixMaxLength() {
+        return chatSuffixMaxLength;
     }
 
     public StorageType storageType() {
