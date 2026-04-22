@@ -14,7 +14,15 @@ final class SqliteSchema {
             st.execute(
                 "CREATE TABLE IF NOT EXISTS namecolors (uuid TEXT PRIMARY KEY NOT NULL, prefix TEXT NOT NULL)"
             );
-            // need "CREATE TABLE IF NOT EXISTS ignores (uuid TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL)" for ignores eventually
+            st.execute(
+                "CREATE TABLE IF NOT EXISTS player_ignores ("
+                    + "ignorer_uuid TEXT NOT NULL, "
+                    + "ignored_uuid TEXT NOT NULL, "
+                    + "PRIMARY KEY (ignorer_uuid, ignored_uuid))"
+            );
+            st.execute(
+                "CREATE INDEX IF NOT EXISTS idx_player_ignores_ignorer ON player_ignores(ignorer_uuid)"
+            );
         }
     }
 }

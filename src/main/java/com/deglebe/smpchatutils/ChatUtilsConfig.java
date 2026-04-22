@@ -13,6 +13,7 @@ public final class ChatUtilsConfig {
     private boolean miniMessageEnabled;
     private boolean formatObfuscated;
     private boolean nameColorEnabled;
+    private boolean ignoreChatEnabled;
     private int nameColorMaxPrefixLength;
     private StorageType storageType = StorageType.YAML;
     private String storageSqliteFile = "smpchatutils.db";
@@ -32,6 +33,7 @@ public final class ChatUtilsConfig {
         miniMessageEnabled = c.getBoolean("chat.format.minimessage", true);
         formatObfuscated = c.getBoolean("chat.format.obfuscated", false);
         nameColorEnabled = c.getBoolean("chat.namecolor.enabled", true);
+        ignoreChatEnabled = c.getBoolean("chat.ignore.enabled", true);
         nameColorMaxPrefixLength = Math.max(1, Math.min(128, c.getInt("chat.namecolor.max-prefix-length", 48)));
 
         String rawType = c.getString("storage.type", "yaml");
@@ -84,6 +86,11 @@ public final class ChatUtilsConfig {
 
     public boolean nameColorEnabled() {
         return nameColorEnabled;
+    }
+
+    /* when false, /ignore commands no-op and chat is not filtered by ignore lists. */
+    public boolean ignoreChatEnabled() {
+        return ignoreChatEnabled;
     }
 
     public int nameColorMaxPrefixLength() {
